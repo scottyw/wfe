@@ -3,8 +3,9 @@ package wfe
 import (
 	"net/url"
 
-	"github.com/lyraproj/pcore/px"
 	"github.com/lyraproj/pcore/types"
+
+	"github.com/lyraproj/pcore/px"
 	"github.com/lyraproj/servicesdk/serviceapi"
 	"github.com/lyraproj/wfe/api"
 	"github.com/lyraproj/wfe/service"
@@ -31,17 +32,13 @@ func (r *resource) ExtId() px.Value {
 
 func Resource(def serviceapi.Definition) api.Activity {
 	r := &resource{}
-	r.Init(def)
-	return r
-}
-
-func (r *resource) Init(d serviceapi.Definition) {
-	r.Activity.Init(d)
-	if eid, ok := service.GetOptionalProperty(d, `externalId`, types.DefaultStringType()); ok {
+	r.init(def)
+	if eid, ok := service.GetOptionalProperty(def, `externalId`, types.DefaultStringType()); ok {
 		r.extId = eid
 	}
-	r.typ = service.GetProperty(d, `resourceType`, types.NewTypeType(types.DefaultObjectType())).(px.ObjectType)
+	r.typ = service.GetProperty(def, `resourceType`, types.NewTypeType(types.DefaultObjectType())).(px.ObjectType)
 	r.handler = px.NewTypedName(px.NsHandler, r.typ.Name())
+	return r
 }
 
 func (r *resource) Identifier() string {

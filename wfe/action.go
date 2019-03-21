@@ -20,15 +20,11 @@ var expectedType = types.NewCallableType(
 
 func Action(def serviceapi.Definition) api.Activity {
 	a := &action{}
-	a.Init(def)
-	return a
-}
-
-func (s *action) Init(d serviceapi.Definition) {
-	s.Activity.Init(d)
-	if i, ok := d.Properties().Get4(`interface`); ok {
-		s.api = i.(px.ObjectType)
+	a.init(def)
+	if i, ok := def.Properties().Get4(`interface`); ok {
+		a.api = i.(px.ObjectType)
 	}
+	return a
 }
 
 func (s *action) Run(ctx px.Context, input px.OrderedMap) px.OrderedMap {

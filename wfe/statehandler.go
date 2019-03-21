@@ -17,14 +17,10 @@ type stateHandler struct {
 
 func StateHandler(def serviceapi.Definition) api.Activity {
 	a := &stateHandler{}
-	a.Init(def)
-	return a
-}
-
-func (a *stateHandler) Init(def serviceapi.Definition) {
-	a.Activity.Init(def)
+	a.init(def)
 	// TODO: Type validation. The typ must be an ObjectType implementing read, upsert, and delete.
 	a.typ = service.GetProperty(def, `interface`, types.NewTypeType(types.DefaultObjectType())).(px.ObjectType)
+	return a
 }
 
 func (a *stateHandler) Run(c px.Context, input px.OrderedMap) px.OrderedMap {
