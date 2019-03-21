@@ -30,13 +30,26 @@ func (r *resource) ExtId() px.Value {
 	return r.extId
 }
 
-func Resource(def serviceapi.Definition) api.Activity {
+func Resource(c px.Context, def serviceapi.Definition) api.Activity {
 	r := &resource{}
 	r.init(def)
 	if eid, ok := service.GetOptionalProperty(def, `externalId`, types.DefaultStringType()); ok {
 		r.extId = eid
 	}
-	r.typ = service.GetProperty(def, `resourceType`, types.NewTypeType(types.DefaultObjectType())).(px.ObjectType)
+
+	rt := service.GetProperty(def, `resourceType`, types.DefaultTypeType()).(px.Type)
+	if rs, ok := rt.(px.ResolvableType); ok {
+		// Ensure that the handler for the resource type is loaded prior to attempting
+		// the resolve.
+		if tr, ok := rs.(*types.TypeReferenceType); ok && types.TypeNamePattern.MatchString(tr.TypeString()) {
+			_, ok = px.Load(c, px.NewTypedName(px.NsHandler, tr.TypeString()))
+		}
+		if ok {
+			rt = rs.Resolve(c)
+		}
+	}
+	r.typ = px.AssertType(func() string { return "property resourceType of activity " + def.Identifier().Name() },
+		types.DefaultObjectType(), rt).(px.ObjectType)
 	r.handler = px.NewTypedName(px.NsHandler, r.typ.Name())
 	return r
 }

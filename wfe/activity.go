@@ -33,7 +33,7 @@ func CreateActivity(c px.Context, def serviceapi.Definition) api.Activity {
 	case `iterator`:
 		return Iterator(c, def)
 	case `resource`:
-		return Resource(def)
+		return Resource(c, def)
 	case `workflow`:
 		return Workflow(c, def)
 	case `action`:
